@@ -3,42 +3,64 @@
   <head>
     <meta charset='utf-8' />
     <meta http-equiv="X-UA-Compatible" content="chrome=1" />
-    <meta name="description" content="http2.info: http2jp main page" />
+    <meta name="description" content="HTTP/2 Japan Local Activity" />
     <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
-    <title>http2jp.github.io</title>
+    <title>HTTP/2 Japan Local Activity</title>
   </head>
   <body>
+    <div id="wrapper">
+      <div id="header">
+        <h1><img src="images/logo.png" alt="HTTP/2 Japan Local Activity" width="148"></h1>
+      </div>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/http2jp">View on GitHub</a>
-          <h1 id="project_title">http2jp.info</h1>
-          <h2 id="project_tagline">http2jp main page</h2>
-        </header>
-    </div>
-
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3><a name="materials" class="anchor" href="#materials"><span class="octicon octicon-link"></span></a>materials</h3>
+      <div id="content">
+        <h2>Materials</h2>
         <ul>
-          <li><a class="anchor" href="http://summerwind.jp/docs/draft-ietf-httpbis-http2-09/">http2 draft-09 Japanese Translation</a></li>
-          <li><a class="anchor" href="https://github.com/http2jp/hpack-test-case">hpack-test-case</a></li>
+          <li><a href="http://summerwind.jp/docs/draft-ietf-httpbis-http2-09/">HTTP/2 draft-09 (Japanese translation)</a></li>
+          <li><a href="https://github.com/http2jp/hpack-test-case">HPACK Test Case</a></li>
         </ul>
-        <h3><a name="meetings" class="anchor" href="#meetings"><span class="octicon octicon-link"></span></a>meetings</h3>
-        <ul>
-          <li><a class="anchor" href="http://connpass.com/series/457/">http2study</a></li>
-        </ul>
-      </section>
-    </div>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
+        <h2>Meetup</h2>
+        <ul>
+          <li><a href="http://connpass.com/event/4459/">HTTP/2 Study #3</a> <span class="date">(2014/1/28)</span></li>
+          <li><a href="http://connpass.com/event/3461/">HTTP/2 Study #2</a> <span class="date">(2013/10/17)</span></li>
+          <li><a href="http://connpass.com/event/3122/">HTTP/2 Study #1</a> <span class="date">(2013/08/14)</span></li>
+        </ul>
+
+        <h2>Hackathon</h2>
+        <ul>
+          <li><a href="http://connpass.com/event/5062/">HTTP/2 Hackathon #1</a> <span class="date">(2014/2/23)</span></li>
+          <li><a href="http://connpass.com/event/3809/">HTTP/2 Mini Hackathon #2</a> <span class="date">(2013/12/15)</span></li>
+          <li><a href="http://connpass.com/event/3633/">HTTP/2 Mini Hackathon #1</a> <span class="date">(2013/10/12)</span></li>
+        </ul>
+        </ul>
+
+        <h2>Presentations</h2>
+        <ul>
+          <li><a href="http://www.slideshare.net/shigeki_ohtsu/http2study3">httpbis interim@チューリッヒ レポート</a></li>
+          <li><a href="http://mew.org/~kazu/material/2014-hpack.pdf">HPACK 05 の実装と解析</a></li>
+          <li><a href="https://speakerdeck.com/summerwind/2-wodu-mijie-kuji-shu">HTTP/2 を読み解く技術</a></li>
+          <li><a href="http://www.slideshare.net/shigeki_ohtsu/http2-interop-report2">httpbis interim＠シアトル レポート(第2回HTTP/2.0接続試験)</a></li>
+          <li><a href="https://docs.google.com/presentation/d/1Z5V0OLtMjy8Ybrnv5ULLobU6mJaITqxJ_ZMhlBTYn_I/edit#slide=id.p">nghttp2 - The heir of spdylay</a></li>
+          <li><a href="http://www.slideshare.net/fujisawa/http-20hpack-27346767">HTTP 2.0のヘッダ圧縮（HPACK）</a></li>
+          <li><a href="http://www.slideshare.net/shigeki_ohtsu/httpbis-interim-http20-25197160">HTTPbis InterimとHTTP2.0相互接続試験の話</a></li>
+          <li><a href="http://www.slideshare.net/Jxck/http20-guide-http2study-20130814">HTTP2.0 ガイド (draft-04)</a></li>
+          <li><a href="http://www.slideshare.net/yuki-f/http20-1">HTTP2.0 ネゴシエーション&amp;ヘッダー圧縮</a></li>
+        </ul>
+
+        <h2>Our implementetions</h2>
+        <ul>
+          <li><a href="https://github.com/tatsuhiro-t/nghttp2">nghttp2</a></li>
+          <li><a href="https://github.com/shigeki/interop-iij-http2">iij-http2</a></li>
+          <li><a href="https://github.com/kazu-yamamoto/http2">haskell-http2</a></li>
+          <li><a href="https://github.com/Jxck/http2">go-http2</a></li>
+          <li><a href="https://github.com/summerwind/node-http2-hpack">node-http2-hpack</a></li>
+        </ul>
+      </div>
+
+      <div id="footer">
+        <p><a href="https://github.com/http2jp">GitHub</a> / <a href="https://twitter.com/search?q=%23http2study&amp;src=hash&amp;f=realtime">#http2study</a></p>
+      </div>
     </div>
   </body>
-
 </html>
