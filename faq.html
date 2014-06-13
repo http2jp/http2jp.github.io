@@ -47,13 +47,13 @@
       <li><a href="#will-there-be-a-http3">Will there be a HTTP/3?</a></li>
     </ul>
   </li>
-  <li><a href="#implementation-questions">Implementation Questions</a>
+  <li><a href="#implementation-questions">実装上の質問</a>
     <ul>
-      <li><a href="#why-the-rules-around-continuation-on-headers-frames">Why the rules around Continuation on HEADERS frames?</a></li>
-      <li><a href="#what-is-the-minimum-or-maximum-hpack-state-size">What is the minimum or maximum HPACK state size?</a></li>
-      <li><a href="#how-can-i-avoid-keeping-state">How can I avoid keeping state?</a></li>
-      <li><a href="#why-is-there-a-single-compressionflow-control-context">Why is there a single compression/flow-control context?</a></li>
-      <li><a href="#why-is-there-an-eos-symbol-in-hpack">Why is there an EOS symbol in HPACK?</a></li>
+      <li><a href="#why-the-rules-around-continuation-on-headers-frames">HEADERS フレームの延長 (CONTINUATION) に関するルールが存在するのはなぜですか ?</a></li>
+      <li><a href="#what-is-the-minimum-or-maximum-hpack-state-size">HPACK の状態を保持する上で必要なメモリ量の下限と上限は何ですか ?</a></li>
+      <li><a href="#how-can-i-avoid-keeping-state">HPACKの状態を保持しないようにするにはどうすればよいですか ?</a></li>
+      <li><a href="#why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか ?</a></li>
+      <li><a href="#why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか ?</a></li>
     </ul>
   </li>
   <li><a href="#deployment-questions">Deployment Questions</a>
@@ -242,31 +242,66 @@ product.
 </div>
 
 <div class="section">
-<h2 id="implementation-questions">Implementation Questions</h2>
+<h2 id="implementation-questions">実装上の質問</h2>
 
-<h3 id="why-the-rules-around-continuation-on-headers-frames">Why the rules around Continuation on HEADERS frames?</h3>
+<h3 id="why-the-rules-around-continuation-on-headers-frames">HEADERS フレームの延長 (CONTINUATION) に関するルールが存在するのはなぜですか ?</h3>
 
-<p>Continuation exists since a single value (e.g. SETCOOKIE) could exceed 16k, which means it couldn’t fit into a single frame. It was decided that the least error-prone way to deal with this was to require that all of the headers data come in back-to-back frames, which made decoding and buffer management easier. </p>
+<p>
+フレームの延長が存在する理由は, ヘッダーフィールド (e.g., Set-Cookie) の長さが
+16KiB - 1 を超える可能性があり, その場合一つのフレームに収めることができないからです.
+実装の上で最も間違いが少ないような解決方法を模索したところ,
+全ヘッダーデータが連続したフレーム送信されなければならないというルールに落ち着きました.
+これはデコード時のバッファー管理も容易になるというメリットもあります.
+</p>
 
-<h3 id="what-is-the-minimum-or-maximum-hpack-state-size">What is the minimum or maximum HPACK state size?</h3>
+<h3 id="what-is-the-minimum-or-maximum-hpack-state-size">HPACK の状態を保持する上で必要なメモリ量の下限と上限は何ですか ?</h3>
 
-<p>The receiver always controls the amount of memory used in HPACK, and can set it to zero at a minimum, with a maximum related to the maximum representable integer in a SETTINGS frame, currently 2^32.</p>
+<p>
+受信側が HPACK で使用するメモリ量を常に制御します.
+下限値は 0 です.
+上限値は SETTINGS フレームで表現できる最大の整数型の値, 現在では 2^32 - 1 です.
+</p>
 
-<h3 id="how-can-i-avoid-keeping-state">How can I avoid keeping state?</h3>
+<h3 id="how-can-i-avoid-keeping-state">HPACKの状態を保持しないようにするにはどうすればよいですか ?</h3>
 
-<p>Send a SETTINGS frame setting state size to zero, then RST all streams until a SETTINGS frame with the ACK bit set has been received.</p>
+<p>
+SETTINGS フレームで状態サイズ (SETTINGS_HEADER_TABLE_SIZE) を 0 にして送信し,
+ACK フラグ付きの SETTINGS を受信するまですべてのストリームに RST_STREAM
+フレームを送信します.
+</p>
 
-<h3 id="why-is-there-a-single-compressionflow-control-context">Why is there a single compression/flow-control context?</h3>
+<h3 id="why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか ?</h3>
 
-<p>Simplicity. </p>
+<p>
+シンプルにするためです.
+</p>
 
-<p>The original proposals had stream groups, which would share context, flow control, etc. While that would benefit proxies (and the experience of users going through them), doing so added a fair bit of complexity. It was decided that we’d go with the simple thing to begin with, see how painful it was, and address the pain (if any) in a future protocol revision.</p>
+<p>
+オリジナルの提案ではストリームはグループを構成でき,
+その中ではフローコントロールなどのコンテキストを共有することも可能でした.
+これはプロキシーにとっては有益である (そしてそれを使うユーザーにとっても有益でしょう) 反面,
+かなり複雑度が増すことになります.
+そこで我々は最もシンプルな方式からはじめることにして, それが苦痛であるか見極め,
+その苦痛 (もしあればですが) を未来のプロトコルリビジョン (訳注: HTTP/3?)
+で解決することにしました.
+</p>
 
-<h3 id="why-is-there-an-eos-symbol-in-hpack">Why is there an EOS symbol in HPACK?</h3>
+<h3 id="why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか ?</h3>
 
-<p>HPACK’s huffman encoding, for reasons of CPU efficiency and security, pads out huffman-encoded strings to the next byte boundary; there may be between 0-7 bits of padding needed for any particular string. </p>
+<p>
+HPACK のハフマン符号化は, CPU を効率よく使うため, またはセキュリティ上の理由から,
+ハフマン符号化した文字列を次のバイト境界までパディングを追加します.
+すなわち 0-7 ビットのパディングが文字列にあらわれます.
+</p>
 
-<p>If one considers huffman decoding in isolation, any symbol that is longer than the required padding would work; however, HPACK’s design allows for bytewise comparison of huffman-encoded strings. By requiring that the bits of the EOS symbol are used for padding, we ensure that users can do bytewise comparison of huffman-encoded strings to determine equality. This in turn means that many headers can be interpreted without being huffman decoded. </p>
+<p>
+ハフマン符号化だけを考えるなら, 必要なパディングよりも長いシンボルならどれでもパディングとして使うことができます.
+しかしながら HPACK のデザインは,
+ハフマン符号化した文字列をバイト単位で比較することを許しているのです.
+EOS シンボルのビット列をパディングとして使うことを要求することで,
+我々はハフマン符号化された文字列同士をバイト単位の比較で同一性を確認できることを保証するのです.
+これは多くのヘッダーはハフマン符号をデコードせずに解釈することができるということも意味するのです.
+</p>
 </div>
 
 <div class="section">
