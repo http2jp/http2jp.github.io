@@ -34,9 +34,9 @@
       <li><a href="#what-are-the-key-differences-to-http1x">HTTP/1.x との主な違いは何ですか？</a></li>
       <li><a href="#why-is-http2-binary">Why is HTTP/2 binary?</a></li>
       <li><a href="#why-is-http2-multiplexed">Why is HTTP/2 multiplexed?</a></li>
-      <li><a href="#why-just-one-tcp-connection">Why just one TCP connection?</a></li>
-      <li><a href="#whats-the-benefit-of-server-push">What’s the benefit of Server Push?</a></li>
-      <li><a href="#why-do-we-need-header-compression">Why do we need header compression?</a></li>
+      <li><a href="#why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか ?</a></li>
+      <li><a href="#whats-the-benefit-of-server-push">サーバープッシュの利点は何ですか ?</a></li>
+      <li><a href="#why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか ?</a></li>
       <li><a href="#why-hpack">Why HPACK?</a></li>
       <li><a href="#can-http2-make-cookies-or-other-headers-better">Can HTTP/2 make cookies (or other headers) better?</a></li>
       <li><a href="#what-about-non-browser-users-of-http">What about non-browser users of HTTP?</a></li>
@@ -138,31 +138,75 @@
 
 <p>This, in turn, allows a client to use just one connection per origin to load a page.</p>
 
-<h3 id="why-just-one-tcp-connection">Why just one TCP connection?</h3>
+<h3 id="why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか ?</h3>
 
-<p>Right now, browsers open between four and eight connections per origin. Since many sites use multiple origins, this could mean that a single page load opens more than thirty connections.</p>
+<p>
+現在ブラウザーは 1 ドメインあたり 4 から 8 個の接続を使用しています.
+多くのサイトでは複数のドメインを使用しているので,
+1 ページをロードすると実に 30 個を超える接続を使用することになります.
+</p>
 
-<p>One application opening so many connections simultaneously breaks a lot of the assumptions that TCP was built upon; since each connection will start a flood of data in the response, there’s a real risk that buffers in the intervening network will overflow, causing a congestion event and retransmits. </p>
+<p>
+同時に多くの接続を開くアプリケーションは TCP の設計上の多くの前提を崩しているのです.
+各接続において応答データが一挙に流れ出すと, 途中経路上のネットワークのバッファーが溢れ,
+輻輳が発生しパケット再送が起こる危険性があります.
+</p>
 
-<p>Additionally, using so many connections unfairly monopolises network resources, “stealing” them from other, better-behaved applications (e.g., VoIP).</p>
+<p>
+さらに, 公正を欠くような過度の続接はネットワーク資源を独占することになり,
+紳士的に振る舞う他のアプリケーション (e.g., VoIP) から資源を "盗んで" いることになるのです.
+</p>
 
-<h3 id="whats-the-benefit-of-server-push">What’s the benefit of Server Push?</h3>
+<h3 id="whats-the-benefit-of-server-push">サーバープッシュの利点は何ですか ?</h3>
 
-<p>When a browser requests a page, the server sends the HTML in the response, and then needs to wait for the browser to parse the HTML and issue requests for all of the embedded assets before it can start sending the JavaScript, images and CSS.</p>
+<p>
+ブラウザーがページを要求するとサーバーは HTML を応答として送信しますが,
+サーバーが HTML に埋め込まれている JavaScript, 画像, CSS のアセットを送信するには,
+ブラウザーが HTML を解析し, それらのリクエストを送信するまで待たなければなりません.
+</p>
 
-<p>Server Push allows the server to avoid this round trip of delay by “pushing” the responses it thinks the client will need into its cache.</p>
+<p>
+サーバープッシュは, クライアントが必要とするであろうと思われる応答をサーバーが判断し
+"プッシュ" することでラウンドトリップを回避します.
+</p>
 
-<h3 id="why-do-we-need-header-compression">Why do we need header compression?</h3>
+<h3 id="why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか ?</h3>
 
-<p>Patrick McManus from Mozilla showed this vividly by calculating the effect of headers for an average page load.</p>
+<p>
+Mozilla の Patrick McManus は平均ページロード時間におけるヘッダーの影響度を計算し,
+ヘッダー圧縮の必要性を強く示してくれました.
+</p>
 
-<p>If you assume that a page has about 80 assets (which is conservative in today’s Web), and each request has 1400 bytes of headers (again, not uncommon, thanks to Cookies, Referer, etc.), it takes at least 7-8 round trips to get the headers out “on the wire.” That’s not counting response time - that’s just to get them out of the client.</p>
 
-<p>This is because of TCP’s <a href="http://en.wikipedia.org/wiki/Slow-start">Slow Start</a> mechanism, which paces packets out on new connnections based on how many packets have been acknowledged – effectively limiting the number of packets that can be sent for the first few round trips.</p>
+<p>
+1 ページが約 80 個のアセット (これは現在の Web においては比較的控えめな数値です)
+で構成されており, 各リクエストが 1400 バイトのヘッダー
+(Cookie や Referer 等の影響により, この数値は珍しくありません)
+を持つと仮定します.
+この場合, ヘッダーの送出に 7-8 ラウンドトリップが必要です.
+これは応答時間を含めていないことに注意してください.
+クライアントからヘッダーを送出する時だけでこれほど必要なのです.
+</p>
 
-<p>In comparison, even mild compression on headers allows those requests to get onto the wire within one roundtrip – perhaps even one packet. </p>
+<p>
+これは TCP の
+<a href="http://en.wikipedia.org/wiki/Slow-start">スロースタート</a>
+メカニズムが原因なのです.
+このメカニズムは, 確認応答が得られたパケットの数を元にパケット送信のペースを調整するのです.
+これにより,
+新しい接続の最初の数ラウンドトリップにおいて送信できるパケットの数は実質的に制限されることになります.
+<p>
 
-<p>This overhead is considerable, especially when you consider the impact upon mobile clients, which typically see round-trip latency of several hundred milliseconds, even under good conditions.</p>
+<p>
+これに対し, 比較的緩い圧縮であってもヘッダーに施せば,
+これらリクエストを一つのラウンドトリップで送出できます.
+うまく行けばひとつのパケットに収めることができます.
+</p>
+
+<p>
+この (訳注: ラウンドトリップの) のオーバーヘッドは大きいものです.
+良いコンディションにおいてもラウンドトリップの遅延が数百ミリ秒に達するのが普通であるモバイルクライアントにおいては特にそうです.
+</p>
 
 <h3 id="why-hpack">Why HPACK?</h3>
 
