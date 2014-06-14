@@ -32,8 +32,8 @@
       <li><a href="#whats-the-relationship-with-spdy">SPDY との関係は？</a></li>
       <li><a href="#is-it-http20-or-http2">HTTP/2.0 ではなく HTTP/2 なのですか？</a></li>
       <li><a href="#what-are-the-key-differences-to-http1x">HTTP/1.x との主な違いは何ですか？</a></li>
-      <li><a href="#why-is-http2-binary">Why is HTTP/2 binary?</a></li>
-      <li><a href="#why-is-http2-multiplexed">Why is HTTP/2 multiplexed?</a></li>
+      <li><a href="#why-is-http2-binary">なぜ HTTP/2 はバイナリを使用するのですか？</a></li>
+      <li><a href="#why-is-http2-multiplexed">なぜ HTTP/2 は多重化するのですか？</a></li>
       <li><a href="#why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか ?</a></li>
       <li><a href="#whats-the-benefit-of-server-push">サーバープッシュの利点は何ですか ?</a></li>
       <li><a href="#why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか ?</a></li>
@@ -118,25 +118,25 @@
   <li>サーバーは、クライアントのキャッシュに積極的にレスポンスを &quot;プッシュ&quot; できます</li>
 </ul>
 
-<h3 id="why-is-http2-binary">Why is HTTP/2 binary?</h3>
+<h3 id="why-is-http2-binary">なぜ HTTP/2 はバイナリを使用するのですか？</h3>
 
-<p>Binary protocols are more efficient to parse, more compact “on the wire”, and most importantly, the are much less error-prone, compared to textual protocols like HTTP/1.x, because they often have a number of affordances to “help” with things like whitespace handling, capitalisation, line endings, blank links and so on.</p>
+<p>バイナリプロトコルは、小さな容量で転送でき、より効率的に解析できます。そして最も重要なのは HTTP/1.x のようなテキストプロトコルと比較して、間違いを少なくできることです。なぜなら、テキストプロトコルは、空白の処理や大文字と小文字の区別、改行コード、空白のリンクといったものに対応する多くのアフォーダンスを持っているからです。</p>
 
-<p>For example, HTTP/1.1 defines <a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.4">four different ways to parse a message</a>; in HTTP/2, there’s just one code path.</p>
+<p>例えば、HTTP/1.1 では<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.4">異なる4つのメッセージの解析方法</a>が定義されていますが、HTTP/2 においては1つだけです。</p>
 
-<p>It’s true that HTTP/2 won’t be usable through telnet, but we already have some tool support, such as a <a href="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9042">Wireshark plugin</a>.</p>
+<p>HTTP/2 が telnet を通じて使用できないのは事実ですが、我々はすでに <a href="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9042">Wirshark プラグイン</a>などのいくつかのツールをサポートしています。</p>
 
-<h3 id="why-is-http2-multiplexed">Why is HTTP/2 multiplexed?</h3>
+<h3 id="why-is-http2-multiplexed">なぜ HTTP/2 は多重化するのですか？</h3>
 
-<p>HTTP/1.x has a problem called “head-of-line blocking,” where effectively only one request can be outstanding on a connection at a time. </p>
+<p>HTTP/1.x には、接続上で1度に処理できるリクエストは実質的に1つだけになる &quot;行頭ブロッキング&quot; と呼ばれる問題がありました。</p>
 
-<p>HTTP/1.1 tried to fix this with pipelining, but it didn’t completely address the problem (a large or slow response can still block others behind it). Additionally, pipelining has been found very difficult to deploy, because many intermediaries and servers don’t process it correctly.</p>
+<p>HTTP/1.1 は パイプラインにより改善を試みましたが、この問題を完全には解決しませんでした (巨大なレスポンスや遅いレスポンスが、それ以降の他のレスポンスをブロックすることができてしまいます)。加えて、パイプラインは多くの中継機器やサーバーが正しく処理をしないため、デプロイすることが非常に難しいことが分かっています。</p>
 
-<p>This forces clients to use a number of heuristics (often guessing) to determine what requests to put on which connection to the origin when; since it’s common for a page to load 10 times (or more) the number of available connections, this can severely impact performance, often resulting in a “waterfall” of blocked requests.</p>
+<p>このことは、リクエストをどのオリジンへの接続にいつ割り当てるかを決定するために、クライアントに様々な発見的手法 (その多くは推測) の使用を強制します。ページは使用可能な接続数の10倍 (またはそれ以上) を読み込むことが一般的であるため、これは著しくパフォーマンスに影響し、多くの場合ブロックされたリクエストの &quot;ウォーターフォール&quot; を生み出します。</p>
 
-<p>Multiplexing addresses these problems by allowing multiple request and response messages to be in flight at the same time; it’s even possible to intermingle parts of one message with another on the wire.</p>
+<p>多重化は、複数のリクエストやレスポンスのメッセージを同時に転送することを可能にし、このような問題に取り組みます。転送中に別のメッセージの一部が混在することも可能になります。</p>
 
-<p>This, in turn, allows a client to use just one connection per origin to load a page.</p>
+<p>同様に、クライアントはページを読み込むために、オリジンごとに1個の接続だけを使用すればよいことになります。</p>
 
 <h3 id="why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか ?</h3>
 
