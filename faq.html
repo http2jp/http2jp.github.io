@@ -56,9 +56,9 @@
       <li><a href="#why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか ?</a></li>
     </ul>
   </li>
-  <li><a href="#deployment-questions">Deployment Questions</a>
+  <li><a href="#deployment-questions">デプロイに関する質問</a>
     <ul>
-      <li><a href="#how-do-i-debug-http2-if-its-encrypted">How do I debug HTTP/2 if it’s encrypted?</a></li>
+      <li><a href="#how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</a></li>
     </ul>
   </li>
 </ul>
@@ -349,11 +349,11 @@ EOS シンボルのビット列をパディングとして使うことを要求�
 </div>
 
 <div class="section">
-<h2 id="deployment-questions">Deployment Questions</h2>
+<h2 id="deployment-questions">デプロイに関する質問</h2>
 
-<h3 id="how-do-i-debug-http2-if-its-encrypted">How do I debug HTTP/2 if it’s encrypted?</h3>
+<h3 id="how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</h3>
 
-<p>There are many ways to get access to the application data, but the easiest is to use <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format">NSS keylogging</a> in combination with the Wireshark plugin (included in recent development releases). This works with both Firefox and Chrome.</p>
+<p>アプリケーションデータにアクセスする方法は多くありますが、(最新の開発版に含まれる) Wireshark プラグインと組み合わせて <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format">NSS Key Logging</a> を使用するのが最も簡単でしょう。これは Firefox と Chrome の両方で動作します。</p>
 </div>
 
 <div id="footer">
