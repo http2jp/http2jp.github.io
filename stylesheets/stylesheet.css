@@ -114,3 +114,9 @@ table th {
 #faq .section {
   padding: 0 0 40px;
 }
+
+#faq .section pre {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+}
