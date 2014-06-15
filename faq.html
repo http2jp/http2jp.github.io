@@ -41,10 +41,10 @@
       <li><a href="#can-http2-make-cookies-or-other-headers-better">HTTP/2 はクッキー (またはその他のヘッダー) を改善しますか？</a></li>
       <li><a href="#what-about-non-browser-users-of-http">非ブラウザーにおける HTTP の使用についてはどうなりますか ?</a></li>
       <li><a href="#does-http2-require-encryption">HTTP/2 では暗号化が必須なのですか ?</a></li>
-      <li><a href="#what-does-http2-do-to-improve-security">What does HTTP/2 do to improve security?</a></li>
-      <li><a href="#can-i-use-http2-now">Can I use HTTP/2 now?</a></li>
-      <li><a href="#will-http2-replace-http1x">Will HTTP/2 replace HTTP/1.x?</a></li>
-      <li><a href="#will-there-be-a-http3">Will there be a HTTP/3?</a></li>
+      <li><a href="#what-does-http2-do-to-improve-security">HTTP/2 はセキュリティ向上のために何を行うのですか？</a></li>
+      <li><a href="#can-i-use-http2-now">HTTP/2 を今から使うことはできますか？</a></li>
+      <li><a href="#will-http2-replace-http1x">HTTP/2 は HTTP/1.x を置き換えますか？</a></li>
+      <li><a href="#will-there-be-a-http3">HTTP/3 はありますか？</a></li>
     </ul>
   </li>
   <li><a href="#implementation-questions">実装上の質問</a>
@@ -278,29 +278,29 @@ HTTP では未定義である振る舞いに依存しているユースケース
 HTTP/2 を暗号化された通信路上でのみサポートすると発言しています.
 </p>
 
-<h3 id="what-does-http2-do-to-improve-security">What does HTTP/2 do to improve security?</h3>
+<h3 id="what-does-http2-do-to-improve-security">HTTP/2 はセキュリティ向上のために何を行うのですか？</h3>
 
-<p>Right now, HTTP/2 defines a profile of TLS that is required; this includes the version, cyphersuites, and extensions used. </p>
+<p>現時点で HTTP/2 は要求する TLS のプロファイルを定義しています。この定義には、バージョンや Cipher Suite、使用する拡張が含まれています。</p>
 
-<p>See <a href="http://http2.github.io/http2-spec/#TLSUsage">the spec</a> for details.</p>
+<p>詳しくは<a href="http://http2.github.io/http2-spec/#TLSUsage">仕様</a>を参照してください。</p>
 
-<p>There is also discussion of additional mechanisms, such as using TLS for HTTP:// URLs (so-called “opportunistic encryption”); see <a href="https://github.com/http2/http2-spec/issues/315">issue #315</a>.</p>
+<p>TLS を HTTP:// URL に使用するような追加の機構 (&quot;日和見暗号&quot; と呼ばれます) についての議論もあります。<a href="https://github.com/http2/http2-spec/issues/315">Issue #315</a> を参照してください。</p>
 
-<h3 id="can-i-use-http2-now">Can I use HTTP/2 now?</h3>
+<h3 id="can-i-use-http2-now">HTTP/2 を今から使うことはできますか？</h3>
 
-<p>HTTP/2 isn’t yet available in mainline browsers, but there are experimental builds available, and it may be avilable in “nightly” channels. </p>
+<p>安定版のブラウザでは HTTP/2 はまだ利用できませんが、実験的に利用可能なビルドは存在し、それは &quot;nightly&quot; チャンネルで利用できるかもしれません。</p>
 
-<p>There are also several servers available (including a test server form <a href="https://github.com/http2/http2-spec/wiki/Akamaighost">Akamai</a> and <a href="https://twitter.com/">Twitter</a>’s main site), and a number of Open Source implementations that you can deploy and test.</p>
+<p>いくつかのサーバー (<a href="https://github.com/http2/http2-spec/wiki/Akamaighost">Akamai</a> が提供するテストサーバーや、<a href="https://twitter.com/">Twitter</a> のサイトを含みます) もまた提供されており、デプロイしてテスト可能なオープンソースの実装も多数あります。</p>
 
-<p>See the <a href="https://github.com/http2/http2-spec/wiki/Implementations">implementations list</a> for more details.</p>
+<p>詳しくは<a href="https://github.com/http2/http2-spec/wiki/Implementations">実装リスト</a>を参照してください。</p>
 
-<h3 id="will-http2-replace-http1x">Will HTTP/2 replace HTTP/1.x?</h3>
+<h3 id="will-http2-replace-http1x">HTTP/2 は HTTP/1.x を置き換えますか？</h3>
 
-<p>The goal of the Working Group is that typical uses of HTTP/1.x <em>can</em> use HTTP/2 and see some benefit. Having said that, we can’t force the world to migrate, and because of the way that people deploy proxies and servers, HTTP/1.x is likely to still be in use for quite some time.</p>
+<p>HTTP/1.x の一般的な用途で HTTP/2 を使用<em>でき</em>、その成果を見ることがワーキンググループの目標です。とは言うものの、我々は、人々がプロキシやサーバーをデプロイする方法や、世界に対して移行を強制することはできません。HTTP/1.x はまだしばらくの間使用される可能性は高いと言えます。</p>
 
-<h3 id="will-there-be-a-http3">Will there be a HTTP/3?</h3>
+<h3 id="will-there-be-a-http3">HTTP/3 はありますか？</h3>
 
-<p>If the negotiation mechanism introduced by HTTP/2 works well, it should be possible to support new versions of HTTP much more easily than in the past. </p>
+<p>HTTP/2 で導入されたネゴシエーション機構がうまく動作すれば、以前と比べてはるかに簡単に HTTP の新しいバージョンをサポートすることが可能になるはずです。</p>
 </div>
 
 <div class="section">
