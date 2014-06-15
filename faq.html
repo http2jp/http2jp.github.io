@@ -39,8 +39,8 @@
       <li><a href="#why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか ?</a></li>
       <li><a href="#why-hpack">Why HPACK?</a></li>
       <li><a href="#can-http2-make-cookies-or-other-headers-better">Can HTTP/2 make cookies (or other headers) better?</a></li>
-      <li><a href="#what-about-non-browser-users-of-http">What about non-browser users of HTTP?</a></li>
-      <li><a href="#does-http2-require-encryption">Does HTTP/2 require encryption?</a></li>
+      <li><a href="#what-about-non-browser-users-of-http">非ブラウザーにおける HTTP の使用についてはどうなりますか ?</a></li>
+      <li><a href="#does-http2-require-encryption">HTTP/2 では暗号化が必須なのですか ?</a></li>
       <li><a href="#what-does-http2-do-to-improve-security">What does HTTP/2 do to improve security?</a></li>
       <li><a href="#can-i-use-http2-now">Can I use HTTP/2 now?</a></li>
       <li><a href="#will-http2-replace-http1x">Will HTTP/2 replace HTTP/1.x?</a></li>
@@ -230,35 +230,53 @@ Mozilla の Patrick McManus は平均ページロード時間におけるヘッ�
 
 <p>All of that said, the Working Group is responsible for all of HTTP, not just HTTP/2. As such, we can work on new mechanisms that are version-independent, as long as they’re backwards-compatible with the existing Web.</p>
 
-<h3 id="what-about-non-browser-users-of-http">What about non-browser users of HTTP?</h3>
+<h3 id="what-about-non-browser-users-of-http">非ブラウザーにおける HTTP の使用についてはどうなりますか ?</h3>
 
-<p>It’s expected that non-browser applications will be able to use HTTP/2 as well, if they’re already using HTTP. </p>
+<p>
+現在 HTTP を使用している非ブラウザーアプリケーションは HTTP/2
+を使用することができると考えています.
+</p>
 
-<p>Early feedback has been that HTTP/2 has good performance characteristics for HTTP “APIs”, because the APIs don’t need to consider things like request overhead in their design. </p>
+<p>
+早い段階において得られたフィードバックから,
+HTTP/2 は HTTP "APIs" において良い性能特性を持つことが示されました.
+なぜなら API はリクエストのオーバーヘッドを考慮する必要がなくなるからです.
+</p>
 
-<p>Having said that, the main focus of the improvments we’re considering is the typical browsing use cases, since this is the core use case for the protocol. </p>
+<p>
+とはいいつつも, やはり主となる性能向上はブラウザーによるユースケースであると我々は考えています.
+なぜならそれこそがこのプロトコルの基本的なユースケースであるからです.
+</p>
 
-<p>Our <a href="http://datatracker.ietf.org/wg/httpbis/charter/">charter</a> says this about it:</p>
+<p>
+我々の<a href="http://datatracker.ietf.org/wg/httpbis/charter/">憲章</a>は以下のように述べています:
+</p>
 
-<pre><code>The resulting specification(s) are expected to meet these goals for common
-existing deployments of HTTP; in particular, Web browsing (desktop and
-mobile), non-browsers ("HTTP APIs"), Web serving (at a variety of scales), and
-intermediation (by proxies, corporate firewalls, "reverse" proxies and Content
-Delivery Networks). Likewise, current and future semantic extensions to
-HTTP/1.x (e.g., headers, methods, status codes, cache directives) should be
-supported in the new protocol.
+<pre><code>
+出来上がる仕様は, ありふれた既存の HTTP のデプロイメントについてこれらの目標を達成する予定です.
+特に Web ブラウジング (デスクトップとモバイル), 非ブラウザー ("HTTP APIs"),
+Web サービス (規模は大小あります), 中継サーバー (プロキシー, 企業のファイアーウォール,
+"リバース" プロキシー, CDN) が対象となります.
+また, 現在そして未来における HTTP/1.x に対するセマンティックな拡張 (e.g., ヘッダー,
+メソッド, ステータスコード, キャッシュディレクティブ) は新しいプロトコルにおいてサポートされるべきです.
 
-Note that this does not include uses of HTTP where non-specified behaviours
-are relied upon (e.g., connection state such as timeouts or client affinity,
-and "interception" proxies); these uses may or may not be enabled by the final
-product.
+HTTP では未定義である振る舞いに依存しているユースケースは対象外であることに注意してください
+(e.g., タイムアウトやクライアントアフィニティといった接続の状態, "透過" プロキシー).
+最終的な仕様はこれらの使用を無効にする可能性があります.
 </code></pre>
 
-<h3 id="does-http2-require-encryption">Does HTTP/2 require encryption?</h3>
+<h3 id="does-http2-require-encryption">HTTP/2 では暗号化が必須なのですか ?</h3>
 
-<p>No. After extensive discussion, the Working Group did not have consensus to require the use of encryption (e.g., TLS) for the new protocol.</p>
+<p>
+いいえ.
+長い議論の末, ワーキンググループは新しいプロトコルにおける暗号化
+(e.g., TLS) を必須にすることについてコンセンサスを得ることができませんでした.
+</p>
 
-<p>However, some implementations have stated that they will only support HTTP/2 when it is used over an encrypted connection.</p>
+<p>
+しかし, いくつかの実装 (訳注: Mozilla Firefox, Chromium) の開発者は
+HTTP/2 を暗号化された通信路上でのみサポートすると発言しています.
+</p>
 
 <h3 id="what-does-http2-do-to-improve-security">What does HTTP/2 do to improve security?</h3>
 
