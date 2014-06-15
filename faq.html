@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset='utf-8' />
+<meta name="viewport" content="width=device-width">
+<meta name="description" content="HTTP/2 Japan Local Activity" />
+<link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+<title>HTTP/2 Frequently Asked Questions | HTTP/2 Japan Local Activity</title>
+</head>
+
+<body>
+<div id="faq">
+<div id="note">
+<p>この文書は「<a href="http://http2.github.io/faq/">HTTP/2 Frequently Asked Questions</a>」の日本語訳です。</p>
+<p>
+原文の最新版は、この日本語訳が参照した版から更新されている可能性があります。<br>
+この日本語訳は参考情報であり、正式な文書ではないことにも注意してください。また、翻訳において生じた誤りが含まれる可能性があるため、必ず原文もあわせて参照することを推奨します。
+</p>
+</div>
+
+<div id="header">
+<h1>HTTP/2 Frequently Asked Questions</h1>
+<p>これは HTTP/2 の活動に関するよくある質問をまとめたものです。以下の質問の回答は現在のワーキング・グループの合意を伝える試みであり、プロトコルはまだ完成していないため、今後変更されるかもしれないことに注意してください。詳細については上記のリンク (訳注: <a href="http://http2.github.io/">HTTP/2のサイト</a> のリンク) を参照してください。</p>
+</div>
+
+<div id="toc">
+<ul>
+  <li><a href="#general-questions">一般的な質問</a>
+    <ul>
+      <li><a href="#why-revise-http">なぜ HTTP を見直すのですか？</a></li>
+      <li><a href="#who-is-doing-this">誰が行っていますか？</a></li>
+      <li><a href="#whats-the-relationship-with-spdy">SPDY との関係は？</a></li>
+      <li><a href="#is-it-http20-or-http2">HTTP/2.0 ではなく HTTP/2 なのですか？</a></li>
+      <li><a href="#what-are-the-key-differences-to-http1x">HTTP/1.x との主な違いは何ですか？</a></li>
+      <li><a href="#why-is-http2-binary">なぜ HTTP/2 はバイナリを使用するのですか？</a></li>
+      <li><a href="#why-is-http2-multiplexed">なぜ HTTP/2 は多重化するのですか？</a></li>
+      <li><a href="#why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか？</a></li>
+      <li><a href="#whats-the-benefit-of-server-push">サーバープッシュの利点は何ですか？</a></li>
+      <li><a href="#why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか？</a></li>
+      <li><a href="#why-hpack">なぜ HPACK を使うのですか？</a></li>
+      <li><a href="#can-http2-make-cookies-or-other-headers-better">HTTP/2 はクッキー (またはその他のヘッダー) を改善しますか？</a></li>
+      <li><a href="#what-about-non-browser-users-of-http">非ブラウザーにおける HTTP の使用についてはどうなりますか？</a></li>
+      <li><a href="#does-http2-require-encryption">HTTP/2 では暗号化が必須なのですか？</a></li>
+      <li><a href="#what-does-http2-do-to-improve-security">HTTP/2 はセキュリティ向上のために何を行うのですか？</a></li>
+      <li><a href="#can-i-use-http2-now">HTTP/2 を今から使うことはできますか？</a></li>
+      <li><a href="#will-http2-replace-http1x">HTTP/2 は HTTP/1.x を置き換えますか？</a></li>
+      <li><a href="#will-there-be-a-http3">HTTP/3 はありますか？</a></li>
+    </ul>
+  </li>
+  <li><a href="#implementation-questions">実装上の質問</a>
+    <ul>
+      <li><a href="#why-the-rules-around-continuation-on-headers-frames">HEADERS フレームの延長 (CONTINUATION) に関するルールが存在するのはなぜですか？</a></li>
+      <li><a href="#what-is-the-minimum-or-maximum-hpack-state-size">HPACK の状態を保持する上で必要なメモリ量の下限と上限は何ですか？</a></li>
+      <li><a href="#how-can-i-avoid-keeping-state">HPACKの状態を保持しないようにするにはどうすればよいですか？</a></li>
+      <li><a href="#why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか？</a></li>
+      <li><a href="#why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか？</a></li>
+    </ul>
+  </li>
+  <li><a href="#deployment-questions">デプロイに関する質問</a>
+    <ul>
+      <li><a href="#how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</a></li>
+    </ul>
+  </li>
+</ul>
+</div>
+
+<div class="section">
+<h2 id="general-questions">一般的な質問</h2>
+
+<h3 id="why-revise-http">なぜ HTTP を見直すのですか？</h3>
+
+<p>HTTP/1.1 は15年以上にわたってうまく Web を提供してきましたが、時代遅れのものになりつつあります。</p>
+
+<p>Web ページの読み込みにはこれまで以上に多くのリソースが消費され (<a href="http://httparchive.org/trends.php#bytesTotal&amp;reqTotal">HTTP Archive のページサイズ統計</a>を参照)、それらのリソースの全てを効率的に読み込むのは困難です。なぜならば、HTTP では実質的に TCP 接続あたり1つのリクエストしか送信できないためです。</p>
+
+<p>従来から、ブラウザはリクエストを並列に発行するために複数の TCP 接続を使用してきました。しかしこれにも限界があります。非常に多くの接続が使用された場合、2つの逆効果 (TCP 輻輳制御は事実上否定され、パフォーマンスとネットワークに影響する輻輳に至ります) と、根本的な不公平 (ブラウザはより多くのネットワークリソースを必要とします) を生んでしまいます。
+</p>
+
+<p>それと同時に、多数のリクエストは多くの冗長なデータを &quot;転送している&quot; ことも意味します。</p>
+
+<p>これらの要因はいずれも、HTTP/1.1 リクエストには、それに関連する多くのオーバーヘッドがあることを意味します。非常に多くのリクエストが行なわれた場合、パフォーマンスが低下します。</p>
+
+<p>このことは、スプライト化やインライン化、ドメインシャーディング、ファイル結合などを行うことがベストプラクティスと考えられる場所に、業界を導いてきました。そのようなハックは、プロトコルそのものに根本的な問題があることを示しており、使用されるとより多くの問題を引き起こしてしまうのです。</p>
+
+<h3 id="who-is-doing-this">誰が行っていますか？</h3>
+
+<p>HTTP/2 は、<a href="http://www.ietf.org/">IETF</a> で HTTP プロトコルを整備している <a href="http://trac.tools.ietf.org/wg/httpbis/trac/wiki">HTTPbis ワーキンググループ</a>により開発されています。このワーキンググループは、HTTP の実装者、ユーザー、ネットワークオペレーター、そして HTTP エキスパートで構成されています。</p>
+
+<p><a href="http://lists.w3.org/Archives/Public/ietf-http-wg/">我々のメーリングリスト</a>は W3C のサイトでホストされていますが、W3C の活動<em>ではない</em>ことに注意してください。しかしながら、Tim Berners-Lee と W3C TAG が WG の進捗状況を更新しています。</p>
+
+<p>非常に多くの人々がこの活動に貢献しており、活発な参加者には、Firefox、Chrome、Twitter、Microsoft HTTP スタック、Curl や Akamai といった &quot;巨大&quot; プロジェクトのエンジニアたちだけでなく、Python や Ruby、Node.js などの言語の HTTP 実装者も含まれています。</p>
+
+<p>IETF への参加についてより詳しく知りたい場合は、<a href="http://www.ietf.org/tao.html">IETF の Tao</a> を参照してください。また、<a href="https://github.com/http2/http2-spec/graphs/contributors">GitHub の貢献者グラフ</a>では誰が仕様に貢献しているのかを、我々の<a href="https://github.com/http2/http2-spec/wiki/Implementations">実装リスト</a>では誰が実装しているのかをそれぞれ確認することができます。</p>
+
+<h3 id="whats-the-relationship-with-spdy">SPDY との関係は？</h3>
+
+<p>SPDY が HTTP/1.x に対して明らかな改善を示し、(MozillaとNginxのような) 実装者によりその勢いが増したことが明らかになった時、HTTP/2 は初めて議論されました。</p>
+
+<p>提案の募集とその選定プロセスを経て、<a href="http://tools.ietf.org/html/draft-mbelshe-httpbis-spdy-00">SPDY/2</a> は HTTP/2 の基礎に選ばれました。それ以来、ワーキンググループでの議論や実装者からのフィードバックに基づき、様々な変更が行われました。</p>
+
+<p>このプロセスを通じて、Mike Belshe、Roberto Peon の2人を含む SPDY の主要な開発者は HTTP/2 の開発にも関わってきました。実際のところ、<a href="https://groups.google.com/forum/#!topic/spdy-dev/EWEEWSYtlhc">SPDY/4 の改訂版</a>はまだリリースされていませんが、これは HTTP/2 に基づいています。SPDY コミュニティは SPDY/4 を HTTP/2 の競争相手としてではなく、HTTP/x にフィードバックするためのさらなる実験方法としてとらえています。</p>
+
+<h3 id="is-it-http20-or-http2">HTTP/2.0 ではなく HTTP/2 なのですか？</h3>
+
+<p>ワーキンググループは、HTTP/1.x では多くの混乱を招いたため、マイナーバージョン (&quot;.0&quot;) を外すことに決めました。</p>
+
+<p>言い換えると、HTTP バージョンは機能や &quot;マーケティング&quot; 上のものではなく、プロトコルの互換性<em>だけ</em>を表します。</p>
+
+<h3 id="what-are-the-key-differences-to-http1x">HTTP/1.x との主な違いは何ですか？</h3>
+
+<p>HTTP/2 では主に:</p>
+
+<ul>
+  <li>テキストの代わりにバイナリを使用します</li>
+  <li>順序やブロッキングを廃し、完全に多重化されています</li>
+  <li>1つの接続で並列処理ができます</li>
+  <li>オーバーヘッドを削減するため、ヘッダー圧縮を使用します</li>
+  <li>サーバーは、クライアントのキャッシュに積極的にレスポンスを &quot;プッシュ&quot; できます</li>
+</ul>
+
+<h3 id="why-is-http2-binary">なぜ HTTP/2 はバイナリを使用するのですか？</h3>
+
+<p>バイナリプロトコルは、小さな容量で転送でき、より効率的に解析できます。そして最も重要なのは HTTP/1.x のようなテキストプロトコルと比較して、間違いを少なくできることです。なぜなら、テキストプロトコルは、空白の処理や大文字と小文字の区別、改行コード、空白のリンクといったものに対応する多くのアフォーダンスを持っているからです。</p>
+
+<p>例えば、HTTP/1.1 では<a href="http://www.w3.org/Protocols/rfc2616/rfc2616-sec4.html#sec4.4">異なる4つのメッセージの解析方法</a>が定義されていますが、HTTP/2 においては1つだけです。</p>
+
+<p>HTTP/2 が telnet を通じて使用できないのは事実ですが、我々はすでに <a href="https://bugs.wireshark.org/bugzilla/show_bug.cgi?id=9042">Wirshark プラグイン</a>などのいくつかのツールをサポートしています。</p>
+
+<h3 id="why-is-http2-multiplexed">なぜ HTTP/2 は多重化するのですか？</h3>
+
+<p>HTTP/1.x には、接続上で1度に処理できるリクエストは実質的に1つだけになる &quot;行頭ブロッキング&quot; と呼ばれる問題がありました。</p>
+
+<p>HTTP/1.1 は パイプラインにより改善を試みましたが、この問題を完全には解決しませんでした (巨大なレスポンスや遅いレスポンスが、それ以降の他のレスポンスをブロックすることができてしまいます)。加えて、パイプラインは多くの中継機器やサーバーが正しく処理をしないため、デプロイすることが非常に難しいことが分かっています。</p>
+
+<p>このことは、リクエストをどのオリジンへの接続にいつ割り当てるかを決定するために、クライアントに様々な発見的手法 (その多くは推測) の使用を強制します。ページは使用可能な接続数の10倍 (またはそれ以上) を読み込むことが一般的であるため、これは著しくパフォーマンスに影響し、多くの場合ブロックされたリクエストの &quot;ウォーターフォール&quot; を生み出します。</p>
+
+<p>多重化は、複数のリクエストやレスポンスのメッセージを同時に転送することを可能にし、このような問題に取り組みます。転送中に別のメッセージの一部が混在することも可能になります。</p>
+
+<p>同様に、クライアントはページを読み込むために、オリジンごとに1個の接続だけを使用すればよいことになります。</p>
+
+<h3 id="why-just-one-tcp-connection">なぜ 1 個の TCP 接続しか使わないのですか ?</h3>
+
+<p>
+現在ブラウザーは 1 ドメインあたり 4 から 8 個の接続を使用しています.
+多くのサイトでは複数のドメインを使用しているので,
+1 ページをロードすると実に 30 個を超える接続を使用することになります.
+</p>
+
+<p>
+同時に多くの接続を開くアプリケーションは TCP の設計上の多くの前提を崩しているのです.
+各接続において応答データが一挙に流れ出すと, 途中経路上のネットワークのバッファーが溢れ,
+輻輳が発生しパケット再送が起こる危険性があります.
+</p>
+
+<p>
+さらに, 公正を欠くような過度の続接はネットワーク資源を独占することになり,
+紳士的に振る舞う他のアプリケーション (e.g., VoIP) から資源を "盗んで" いることになるのです.
+</p>
+
+<h3 id="whats-the-benefit-of-server-push">サーバープッシュの利点は何ですか ?</h3>
+
+<p>
+ブラウザーがページを要求するとサーバーは HTML を応答として送信しますが,
+サーバーが HTML に埋め込まれている JavaScript, 画像, CSS のアセットを送信するには,
+ブラウザーが HTML を解析し, それらのリクエストを送信するまで待たなければなりません.
+</p>
+
+<p>
+サーバープッシュは, クライアントが必要とするであろうと思われる応答をサーバーが判断し
+"プッシュ" することでラウンドトリップを回避します.
+</p>
+
+<h3 id="why-do-we-need-header-compression">なぜヘッダー圧縮が必要なのですか ?</h3>
+
+<p>
+Mozilla の Patrick McManus は平均ページロード時間におけるヘッダーの影響度を計算し,
+ヘッダー圧縮の必要性を強く示してくれました.
+</p>
+
+
+<p>
+1 ページが約 80 個のアセット (これは現在の Web においては比較的控えめな数値です)
+で構成されており, 各リクエストが 1400 バイトのヘッダー
+(Cookie や Referer 等の影響により, この数値は珍しくありません)
+を持つと仮定します.
+この場合, ヘッダーの送出に 7-8 ラウンドトリップが必要です.
+これは応答時間を含めていないことに注意してください.
+クライアントからヘッダーを送出する時だけでこれほど必要なのです.
+</p>
+
+<p>
+これは TCP の
+<a href="http://en.wikipedia.org/wiki/Slow-start">スロースタート</a>
+メカニズムが原因なのです.
+このメカニズムは, 確認応答が得られたパケットの数を元にパケット送信のペースを調整するのです.
+これにより,
+新しい接続の最初の数ラウンドトリップにおいて送信できるパケットの数は実質的に制限されることになります.
+<p>
+
+<p>
+これに対し, 比較的緩い圧縮であってもヘッダーに施せば,
+これらリクエストを一つのラウンドトリップで送出できます.
+うまく行けばひとつのパケットに収めることができます.
+</p>
+
+<p>
+この (訳注: ラウンドトリップの) のオーバーヘッドは大きいものです.
+良いコンディションにおいてもラウンドトリップの遅延が数百ミリ秒に達するのが普通であるモバイルクライアントにおいては特にそうです.
+</p>
+
+<h3 id="why-hpack">なぜ HPACK を使うのですか？</h3>
+
+<p>SPDY/2 では、ヘッダー圧縮のために送信と受信それぞれに 1 つの GZIP コンテキストを使用することを提案しました。これは実装が簡単なだけでなく、効率的でした。</p>
+
+<p>しかしその後、暗号化されたデータ内での (GZIPのような) ストリーム圧縮の使用に対する大規模な攻撃手法が報告されました。それが <a href="http://en.wikipedia.org/wiki/CRIME">CRIME</a> です。</p>
+
+<p>CRIME は、暗号化ストリームにデータを挿入できる攻撃者であれば、平文を &quot;探り出し&quot;、それを復元することができます。Web においては、JavaScript がこれを可能にします。TLS で保護された HTTP リソースに対して、CIRME を使用してクッキーや認証トークンを復元するデモも存在します。</p>
+
+<p>このような結果から、我々は GZIP 圧縮を使用できませんでした。しかし、ユースケースに適しているだけでなく、安全に使用できる他のアルゴリズムは見つかりません。そこで、我々は新たに粒度の粗いヘッダー向けの圧縮方式を開発しました。ほとんどの場合、HTTP ヘッダーはメッセージ間で変更されないため、この新しい圧縮方式は合理的な圧縮効率をもたらし、より安全であるといえます。</p>
+
+<h3 id="can-http2-make-cookies-or-other-headers-better">HTTP/2 はクッキー (またはその他のヘッダー) を改善しますか？</h3>
+
+<p>HTTP/2 の活動は HTTP のセマンティクスを変更せず、"転送される" もの、つまり HTTP ヘッダーやメソッドといった転送プロトコルの改訂作業に注力しました。</p>
+
+<p>HTTP が広く使われていることがその理由です。もし我々が新しい状態機構の導入(議論された一例) やコアの機能を変更 (ありがたいことに、これはまだ提案されていません) するためにこの HTTP のバージョンを使用してしまうと、それは新しいプロトコルが既存の Web と非互換になってしまうことを意味します。</p>
+
+<p>特に、我々は HTTP/1 から HTTP/2 に変換し、情報を失うことなくそれを元に戻せることを目指しています。もし我々がヘッダーの "掃除" を始めて (HTTP ヘッダーがとても複雑になっていることにほとんど認めて) しまうと、既存の Web の多くに互換性の問題が生じることになります。</p>
+
+<p>これは、単に新しいプロトコルの採用に対する対立が生むことになります。</p>
+
+<p>このように、ワーキンググループには HTTP/2 だけでなく HTTP の全てに対する責任があります。我々は既存の Web と下位互換でさえあれば、バージョンに依存する新しい機構に取り組むことができます。</p>
+
+<h3 id="what-about-non-browser-users-of-http">非ブラウザーにおける HTTP の使用についてはどうなりますか ?</h3>
+
+<p>
+現在 HTTP を使用している非ブラウザーアプリケーションは HTTP/2
+を使用することができると考えています.
+</p>
+
+<p>
+早い段階において得られたフィードバックから,
+HTTP/2 は HTTP "APIs" において良い性能特性を持つことが示されました.
+なぜなら API はリクエストのオーバーヘッドを考慮する必要がなくなるからです.
+</p>
+
+<p>
+とはいいつつも, やはり主となる性能向上はブラウザーによるユースケースであると我々は考えています.
+なぜならそれこそがこのプロトコルの基本的なユースケースであるからです.
+</p>
+
+<p>
+我々の<a href="http://datatracker.ietf.org/wg/httpbis/charter/">憲章</a>は以下のように述べています:
+</p>
+
+<pre><code>出来上がる仕様は, ありふれた既存の HTTP のデプロイメントについてこれらの目標を達成する予定です.
+特に Web ブラウジング (デスクトップとモバイル), 非ブラウザー ("HTTP APIs"),
+Web サービス (規模は大小あります), 中継サーバー (プロキシー, 企業のファイアーウォール,
+"リバース" プロキシー, CDN) が対象となります.
+また, 現在そして未来における HTTP/1.x に対するセマンティックな拡張 (e.g., ヘッダー,
+メソッド, ステータスコード, キャッシュディレクティブ) は新しいプロトコルにおいてサポートされるべきです.
+
+HTTP では未定義である振る舞いに依存しているユースケースは対象外であることに注意してください
+(e.g., タイムアウトやクライアントアフィニティといった接続の状態, "透過" プロキシー).
+最終的な仕様はこれらの使用を無効にする可能性があります.
+</code></pre>
+
+<h3 id="does-http2-require-encryption">HTTP/2 では暗号化が必須なのですか ?</h3>
+
+<p>
+いいえ.
+長い議論の末, ワーキンググループは新しいプロトコルにおける暗号化
+(e.g., TLS) を必須にすることについてコンセンサスを得ることができませんでした.
+</p>
+
+<p>
+しかし, いくつかの実装 (訳注: Mozilla Firefox, Chromium) の開発者は
+HTTP/2 を暗号化された通信路上でのみサポートすると発言しています.
+</p>
+
+<h3 id="what-does-http2-do-to-improve-security">HTTP/2 はセキュリティ向上のために何を行うのですか？</h3>
+
+<p>現時点で HTTP/2 は要求する TLS のプロファイルを定義しています。この定義には、バージョンや Cipher Suite、使用する拡張が含まれています。</p>
+
+<p>詳しくは<a href="http://http2.github.io/http2-spec/#TLSUsage">仕様</a>を参照してください。</p>
+
+<p>TLS を HTTP:// URL に使用するような追加の機構 (&quot;日和見暗号&quot; と呼ばれます) についての議論もあります。<a href="https://github.com/http2/http2-spec/issues/315">Issue #315</a> を参照してください。</p>
+
+<h3 id="can-i-use-http2-now">HTTP/2 を今から使うことはできますか？</h3>
+
+<p>安定版のブラウザでは HTTP/2 はまだ利用できませんが、実験的に利用可能なビルドは存在し、それは &quot;nightly&quot; チャンネルで利用できるかもしれません。</p>
+
+<p>いくつかのサーバー (<a href="https://github.com/http2/http2-spec/wiki/Akamaighost">Akamai</a> が提供するテストサーバーや、<a href="https://twitter.com/">Twitter</a> のサイトを含みます) もまた提供されており、デプロイしてテスト可能なオープンソースの実装も多数あります。</p>
+
+<p>詳しくは<a href="https://github.com/http2/http2-spec/wiki/Implementations">実装リスト</a>を参照してください。</p>
+
+<h3 id="will-http2-replace-http1x">HTTP/2 は HTTP/1.x を置き換えますか？</h3>
+
+<p>HTTP/1.x の一般的な用途で HTTP/2 を使用<em>でき</em>、その成果を見ることがワーキンググループの目標です。とは言うものの、我々は、人々がプロキシやサーバーをデプロイする方法や、世界に対して移行を強制することはできません。HTTP/1.x はまだしばらくの間使用される可能性は高いと言えます。</p>
+
+<h3 id="will-there-be-a-http3">HTTP/3 はありますか？</h3>
+
+<p>HTTP/2 で導入されたネゴシエーション機構がうまく動作すれば、以前と比べてはるかに簡単に HTTP の新しいバージョンをサポートすることが可能になるはずです。</p>
+</div>
+
+<div class="section">
+<h2 id="implementation-questions">実装上の質問</h2>
+
+<h3 id="why-the-rules-around-continuation-on-headers-frames">HEADERS フレームの延長 (CONTINUATION) に関するルールが存在するのはなぜですか ?</h3>
+
+<p>
+フレームの延長が存在する理由は, ヘッダーフィールド (e.g., Set-Cookie) の長さが
+16KiB - 1 を超える可能性があり, その場合一つのフレームに収めることができないからです.
+実装の上で最も間違いが少ないような解決方法を模索したところ,
+全ヘッダーデータが連続したフレーム送信されなければならないというルールに落ち着きました.
+これはデコード時のバッファー管理も容易になるというメリットもあります.
+</p>
+
+<h3 id="what-is-the-minimum-or-maximum-hpack-state-size">HPACK の状態を保持する上で必要なメモリ量の下限と上限は何ですか ?</h3>
+
+<p>
+受信側が HPACK で使用するメモリ量を常に制御します.
+下限値は 0 です.
+上限値は SETTINGS フレームで表現できる最大の整数型の値, 現在では 2^32 - 1 です.
+</p>
+
+<h3 id="how-can-i-avoid-keeping-state">HPACKの状態を保持しないようにするにはどうすればよいですか ?</h3>
+
+<p>
+SETTINGS フレームで状態サイズ (SETTINGS_HEADER_TABLE_SIZE) を 0 にして送信し,
+ACK フラグ付きの SETTINGS を受信するまですべてのストリームに RST_STREAM
+フレームを送信します.
+</p>
+
+<h3 id="why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか ?</h3>
+
+<p>
+シンプルにするためです.
+</p>
+
+<p>
+オリジナルの提案ではストリームはグループを構成でき,
+その中ではフローコントロールなどのコンテキストを共有することも可能でした.
+これはプロキシーにとっては有益である (そしてそれを使うユーザーにとっても有益でしょう) 反面,
+かなり複雑度が増すことになります.
+そこで我々は最もシンプルな方式からはじめることにして, それが苦痛であるか見極め,
+その苦痛 (もしあればですが) を未来のプロトコルリビジョン (訳注: HTTP/3?)
+で解決することにしました.
+</p>
+
+<h3 id="why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか ?</h3>
+
+<p>
+HPACK のハフマン符号化は, CPU を効率よく使うため, またはセキュリティ上の理由から,
+ハフマン符号化した文字列を次のバイト境界までパディングを追加します.
+すなわち 0-7 ビットのパディングが文字列にあらわれます.
+</p>
+
+<p>
+ハフマン符号化だけを考えるなら, 必要なパディングよりも長いシンボルならどれでもパディングとして使うことができます.
+しかしながら HPACK のデザインは,
+ハフマン符号化した文字列をバイト単位で比較することを許しているのです.
+EOS シンボルのビット列をパディングとして使うことを要求することで,
+我々はハフマン符号化された文字列同士をバイト単位の比較で同一性を確認できることを保証するのです.
+これは多くのヘッダーはハフマン符号をデコードせずに解釈することができるということも意味するのです.
+</p>
+</div>
+
+<div class="section">
+<h2 id="deployment-questions">デプロイに関する質問</h2>
+
+<h3 id="how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</h3>
+
+<p>アプリケーションデータにアクセスする方法は多くありますが、(最新の開発版に含まれる) Wireshark プラグインと組み合わせて <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format">NSS Key Logging</a> を使用するのが最も簡単でしょう。これは Firefox と Chrome の両方で動作します。</p>
+</div>
+
+<div id="footer">
+<p><a href="http://http2.info">&laquo; トップに戻る</a></p>
+</div>
+</div>
+</body>
+</html>

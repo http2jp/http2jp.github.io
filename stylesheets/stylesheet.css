@@ -73,3 +73,50 @@ table th {
   color: #aaa;
   font-size: 12px;
 }
+
+#faq {
+  padding: 30px 80px;
+}
+
+#faq h1 {
+  margin: 20px 0;
+  border-bottom: 1px solid #ddd;
+}
+
+#faq #note {
+  margin: 0;
+  margin-bottom: 40px;
+  padding: 10px 20px;
+  border: 1px solid #c99;
+  border-radius: 4px;
+  color: #800;
+  background-color: #fff5f5;
+  font-size: 13px;
+}
+
+#faq h3 {
+  margin: 30px 0 0;
+}
+
+#faq p {
+  margin: 10px 0;
+}
+
+#faq #header {
+  border-bottom: none;
+}
+
+#faq #toc {
+  padding: 10px 0 40px;
+  line-height: 1.6;
+}
+
+#faq .section {
+  padding: 0 0 40px;
+}
+
+#faq .section pre {
+  padding: 10px;
+  border: 1px solid #ccc;
+  background-color: #f5f5f5;
+}
