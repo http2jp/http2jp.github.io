@@ -55,6 +55,8 @@
       <li><a href="#why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか？</a></li>
       <li><a href="#why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか？</a></li>
       <li><a href="#can-i-implement-http2-without-implementing-http11">HTTP/1.1 を実装することなく HTTP/2 を実装できますか？</a></li>
+      <li><a href="is-the-priority-example-in-section-532-incorrect">5.3.2 の優先度の例は間違っていませんか？</a></li>
+      <li><a href="will-i-need-tcpnodelay-for-my-http2-connections">HTTP/2 コネクションは、TCP_NODELAY が必要でしょうか？</a></li>
     </ul>
   </li>
   <li><a href="#deployment-questions">デプロイに関する質問</a>
@@ -281,6 +283,16 @@ HTTP では未定義である振る舞いに依存しているユースケース
 <p>&quot;*&quot; に対する OPTIONS リクエストや、&quot;/&quot; に対する HEAD リクエストを発行する必要がある <code>h2c</code> にのみ対応するクライアントは、安全であり構築が容易です。HTTP/2 のみの実装を期待するクライアントは、101 ステータスコードでない HTTP/1.1 レスポンスはエラーとして扱う必要があります。</p>
 
 <p><code>h2c</code> にのみ対応するサーバーは Upgrade ヘッダーフィールドを含むリクエストを、101 レスポンスと共に受け付けることができます。h2c のアップグレードトークンがないリクエストは、Upgrade ヘッダーフィールドを含む 505 (HTTP Version Not Supported) ステータスコードと共に拒否できます。HTTP/1.1 レスポンスの処理を望まないサーバーは、クライアントがアップグレードされた HTTP/2 コネクション上でリクエストを再施行することを促すために、コネクションプリフェイスの送信後に、ストリーム1を REFUSED_STREAM エラーコードと共に直ちに拒否すべきです。</p>
+
+<h3 id="is-the-priority-example-in-section-532-incorrect">5.3.2 の優先度の例は間違っていませんか？</h3>
+
+<p>いいえ。Stream B の重みは 4 で、Stream C の重みは 12 です。各ストリームが受け取る利用可能なリソースの割合を確認するには、全ての重みを合計 (16) し、各ストリームの重みを重みの合計で割ります。そのため、Stream B は 1/4 のリソースを受け取り、Stream C は 3/4 のリソースを受け取ります。仕様の状態にもあるように、Stream B は理想的には、Stream C に割り当てられたリソースの 1/3 を受け取ります。</p>
+
+<h3 id="will-i-need-tcpnodelay-for-my-http2-connections">HTTP/2 コネクションは、TCP_NODELAY が必要でしょうか？</h3>
+
+<p>はい、おそらく。単一のストリームを仕様して多くのデータをダウンロードするだけのクライアント実装であっても、最大の転送速度を得るために一部のパケットをピアに送信する必要があります。TCP_NODELAY を設定しなければ (Nagle アルゴリズムを許可していれば)、1つのパケットにマージすることを可能にするために、送信パケットはしばらくの間保持されるでしょう。</p>
+
+<p>このようなパケットには、例えば、データを送信するために利用可能なウインドウが存在することをピアに知らせるためのパケットがあります。このパケットの送信を数ミリ秒 (またはそれ以上) 遅延させると、高速な接続に深刻な影響を与えます。</p>
 </div>
 
 <div class="section">
