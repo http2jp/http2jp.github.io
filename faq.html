@@ -55,13 +55,14 @@
       <li><a href="#why-is-there-a-single-compressionflow-control-context">なぜ圧縮コンテキストとフローコントロールは単一なのですか？</a></li>
       <li><a href="#why-is-there-an-eos-symbol-in-hpack">HPACK の EOS シンボルはなぜ存在するのですか？</a></li>
       <li><a href="#can-i-implement-http2-without-implementing-http11">HTTP/1.1 を実装することなく HTTP/2 を実装できますか？</a></li>
-      <li><a href="is-the-priority-example-in-section-532-incorrect">5.3.2 の優先度の例は間違っていませんか？</a></li>
-      <li><a href="will-i-need-tcpnodelay-for-my-http2-connections">HTTP/2 コネクションは、TCP_NODELAY が必要でしょうか？</a></li>
+      <li><a href="#is-the-priority-example-in-section-532-incorrect">5.3.2 の優先度の例は間違っていませんか？</a></li>
+      <li><a href="#will-i-need-tcpnodelay-for-my-http2-connections">HTTP/2 コネクションは、TCP_NODELAY が必要でしょうか？</a></li>
     </ul>
   </li>
   <li><a href="#deployment-questions">デプロイに関する質問</a>
     <ul>
       <li><a href="#how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</a></li>
+      <li><a href="#how-can-i-use-http2-server-push">HTTP/2 サーバープッシュはどのように使えばよいですか？</a></li>
     </ul>
   </li>
 </ul>
@@ -301,6 +302,14 @@ HTTP では未定義である振る舞いに依存しているユースケース
 <h3 id="how-do-i-debug-http2-if-its-encrypted">暗号化された HTTP/2 はどのようにデバッグしたらよいですか？</h3>
 
 <p>アプリケーションデータにアクセスする方法は多くありますが、(最新の開発版に含まれる) Wireshark プラグインと組み合わせて <a href="https://developer.mozilla.org/en-US/docs/Mozilla/Projects/NSS/Key_Log_Format">NSS Key Logging</a> を使用するのが最も簡単でしょう。これは Firefox と Chrome の両方で動作します。</p>
+
+<h3 id="how-can-i-use-http2-server-push">HTTP/2 サーバープッシュはどのように使えばよいですか？</h3>
+
+<p>HTTP/2 サーバープッシュは、リクエストを待つことなく、サーバーがクライアントにコンテンツを提供することを可能にします。これは、特にネットワークの往復時間のほとんどがリソースに費やす時間になるような、ネットワーク大きな帯域遅延積のコネクションにおいて、リソースの取得時間を改善できます。</p>
+
+<p>リクエストの内容に基づいて変化するリソースをプッシュするのは適切ではありません。現在のところ、ブラウザは合致するリクエストをする必要がある場合 (RFC 7234 の4章を参照) にのみ、プッシュされたリクエストを使用します。</p>
+
+<p>一部のキャッシュは、Vary ヘッダーフィールドに含まれている場合であっても、全てのリクエストヘッダーフィールドの変化を尊重しません。プッシュされたリクエストが受け入れられる可能性を最大化するために、コンテンツネゴシエーションは避けたほうが良いと言えます。accept-encoding ヘッダーフィールドに基づくコンテンツネゴシエーションは広くキャッシュにより尊重されますが、他のヘッダーフィールドも同じようにサポートされているとは限りません。</p>
 </div>
 
 <div id="footer">
